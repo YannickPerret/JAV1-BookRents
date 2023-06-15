@@ -62,7 +62,9 @@ class NewBookReservationActivity : AppCompatActivity() {
         }
 
         bookNameInput.setOnClickListener {
-            bookNameInput.showDropDown()
+            if (bookNameInput.length() >= 3){
+                bookNameInput.showDropDown()
+            }
         }
         val startDate = findViewById<EditText>(R.id.start_date)
         startDate.setOnClickListener {
@@ -85,14 +87,14 @@ class NewBookReservationActivity : AppCompatActivity() {
     private fun setupBookAutocomplete() {
         val db = dbHelper.readableDatabase
 
-        val projection = arrayOf(ReservationContract.BookEntry.COLUMN_NAME_ID, ReservationContract.BookEntry.COLUMN_NAME_BOOK)
-        val cursor = db.query(ReservationContract.BookEntry.TABLE_NAME, projection, null, null, null, null, null)
+        val projection = arrayOf(BookContract.BookEntry.COLUMN_NAME_ID, BookContract.BookEntry.COLUMN_NAME_NAME)
+        val cursor = db.query(BookContract.BookEntry.TABLE_NAME, projection, null, null, null, null, null)
 
         val bookTitles = mutableListOf<String>()
         val bookIds = mutableListOf<Int>()
         while(cursor.moveToNext()) {
-            val bookId = cursor.getInt(cursor.getColumnIndexOrThrow(ReservationContract.BookEntry.COLUMN_NAME_ID))
-            val bookTitle = cursor.getString(cursor.getColumnIndexOrThrow(ReservationContract.BookEntry.COLUMN_NAME_BOOK))
+            val bookId = cursor.getInt(cursor.getColumnIndexOrThrow(BookContract.BookEntry.COLUMN_NAME_ID))
+            val bookTitle = cursor.getString(cursor.getColumnIndexOrThrow(BookContract.BookEntry.COLUMN_NAME_NAME))
 
             bookTitles.add(bookTitle)
             bookIds.add(bookId)
