@@ -59,6 +59,7 @@ class MainActivity : AppCompatActivity() {
                 // Recharger les données de la RecyclerView
                 onResume()
             }
+
             override fun onChildDraw(c: Canvas, recyclerView: RecyclerView, viewHolder: RecyclerView.ViewHolder, dX: Float, dY: Float, actionState: Int, isCurrentlyActive: Boolean) {
                 super.onChildDraw(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive)
 
@@ -109,30 +110,36 @@ class MainActivity : AppCompatActivity() {
         // Vide la liste d'éléments et la recharge avec les nouvelles données de la base de données.
         items.clear()
 
-        val projection = arrayOf(BaseColumns._ID, ReservationContract.BookEntry.COLUMN_NAME_CONTACT, ReservationContract.BookEntry.COLUMN_NAME_BOOK, ReservationContract.BookEntry.COLUMN_NAME_START_DATE)
+        val query = """
+    SELECT ${ReservationContract.BookEntry.TABLE_NAME}.${BaseColumns._ID}, 
+    ${ReservationContract.BookEntry.COLUMN_NAME_CONTACT}, 
+    ${ReservationContract.BookEntry.COLUMN_NAME_START_DATE}, 
+    ${ReservationContract.BookEntry.COLUMN_NAME_RETURN_DATE}, 
+    Book.${BookContract.BookEntry.COLUMN_NAME_ID},
+    Book.${BookContract.BookEntry.COLUMN_NAME_NAME}
+    FROM ${ReservationContract.BookEntry.TABLE_NAME}
+    INNER JOIN Book ON ${ReservationContract.BookEntry.TABLE_NAME}.${ReservationContract.BookEntry.COLUMN_NAME_BOOK} = Book.${BookContract.BookEntry.COLUMN_NAME_ID}
+"""
 
-        val cursor = db.query(
-            ReservationContract.BookEntry.TABLE_NAME,
-            projection,
-            null,
-            null,
-            null,
-            null,
-            null
-        )
+
+
+        val cursor = db.rawQuery(query, null)
 
         with(cursor) {
             while (moveToNext()) {
-                val id = getInt(getColumnIndexOrThrow(ReservationContract.BookEntry.COLUMN_NAME_ID))
+                val id = getLong(getColumnIndexOrThrow(BaseColumns._ID)).toInt()
                 val contact = getString(getColumnIndexOrThrow(ReservationContract.BookEntry.COLUMN_NAME_CONTACT))
-                val book = getString(getColumnIndexOrThrow(ReservationContract.BookEntry.COLUMN_NAME_BOOK))
+                val bookId = getLong(getColumnIndexOrThrow(BookContract.BookEntry.COLUMN_NAME_ID))
+                val bookName = getString(getColumnIndexOrThrow(BookContract.BookEntry.COLUMN_NAME_NAME))
                 val startDate = getString(getColumnIndexOrThrow(ReservationContract.BookEntry.COLUMN_NAME_START_DATE))
+                val returnDate = getString(getColumnIndexOrThrow(ReservationContract.BookEntry.COLUMN_NAME_RETURN_DATE))
 
-                val item = BookItemReservation(id, contact, book, startDate)
-
+                val item = BookItemReservation(id, contact, bookId, bookName, startDate, returnDate)
                 items.add(item)
             }
         }
+
+
 
         recyclerView.layoutManager = LinearLayoutManager(this)
         val adapter = MyRecyclerAdapter(items)
@@ -141,7 +148,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     override fun onDestroy() {
-        db.close()
         super.onDestroy()
+        db.close()
     }
 }

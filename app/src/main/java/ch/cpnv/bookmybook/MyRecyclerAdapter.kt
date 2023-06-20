@@ -1,5 +1,6 @@
 package ch.cpnv.bookmybook
 
+import android.graphics.Color
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -13,6 +14,8 @@ class MyRecyclerAdapter(private val dataSet: List<BookItemReservation>) :
         val contactName: TextView = view.findViewById(R.id.contactName)
         val bookName: TextView = view.findViewById(R.id.bookName)
         val startDate: TextView = view.findViewById(R.id.startDate)
+        val returnDate: TextView = view.findViewById(R.id.returnDate)
+
     }
 
     override fun onCreateViewHolder(viewGroup: ViewGroup, viewType: Int): ViewHolder {
@@ -25,9 +28,17 @@ class MyRecyclerAdapter(private val dataSet: List<BookItemReservation>) :
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val bookItem: BookItemReservation = dataSet[position]
         holder.contactName.text = bookItem.contact
-        holder.bookName.text = bookItem.book
+        holder.bookName.text = bookItem.bookName
         holder.startDate.text = bookItem.startDate
+        holder.returnDate.text = bookItem.returnDate ?: "en attente"
+
+        if (bookItem.returnDate != null) {
+            holder.itemView.setBackgroundColor(Color.GREEN)
+        } else {
+            holder.itemView.setBackgroundColor(Color.WHITE)
+        }
     }
+
 
     override fun getItemCount() = dataSet.size
 }

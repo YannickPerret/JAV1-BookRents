@@ -1,28 +1,37 @@
 package ch.cpnv.bookmybook
 
 import BookDbHelper
+import android.app.AlertDialog
 import android.content.Intent
 import android.database.Cursor
+import android.database.sqlite.SQLiteDatabase
 import android.os.Bundle
+import android.provider.BaseColumns
+import android.widget.Button
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.bottomnavigation.BottomNavigationView
+import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 
-class MyBookActivity : AppCompatActivity() {
+class MyBookActivity : AppCompatActivity(), OnBookClickListener {
     private lateinit var bookAdapter: BookAdapter
+    private lateinit var db: SQLiteDatabase
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_my_book)
 
+        val bookDbHelper = BookDbHelper(this)
+        db = bookDbHelper.writableDatabase
+
+
         val recyclerView: RecyclerView = findViewById(R.id.recycler_view)
         recyclerView.layoutManager = LinearLayoutManager(this)
 
         val bookList = queryBooksFromDatabase()
-        bookAdapter = BookAdapter(bookList)
-        recyclerView.adapter = bookAdapter
 
         val fab: FloatingActionButton = findViewById(R.id.fab)
         fab.setOnClickListener {
@@ -45,6 +54,50 @@ class MyBookActivity : AppCompatActivity() {
                 else -> false
             }
         }
+
+        bookAdapter = BookAdapter(bookList, this)
+        recyclerView.adapter = bookAdapter
+    }
+
+     override fun onBookClick(book: Book) {
+        // Here you can create and show a BottomSheetDialog with options
+        val bottomSheetDialog = BottomSheetDialog(this)
+         val sheetView = layoutInflater.inflate(R.layout.bottom_sheet_dialog, null)
+         bottomSheetDialog.setContentView(sheetView)
+
+         sheetView.findViewById<Button>(R.id.create_reservation_button).setOnClickListener {
+            // Handle reservation creation
+            val intent = Intent(this, NewBookReservationActivity::class.java)
+            intent.putExtra("bookId", book.id) // Pass the clicked book's id to the new activity
+            startActivity(intent)
+            bottomSheetDialog.dismiss()
+        }
+         sheetView.findViewById<Button>(R.id.delete_button).setOnClickListener {
+             bottomSheetDialog.dismiss()
+
+             // Show confirmation dialog here
+             val builder = AlertDialog.Builder(this)
+
+             builder.setTitle("Confirmation")
+             builder.setMessage("Êtes-vous sûr de vouloir supprimer ce livre ?")
+
+             builder.setPositiveButton("OUI") { dialog, _ ->
+                 dialog.dismiss()
+
+                 // Delete the book from the database
+                 val deleteQuery = "DELETE FROM ${BookContract.BookEntry.TABLE_NAME} WHERE ${BaseColumns._ID} = ${book.id}"
+                 db.execSQL(deleteQuery)
+                 onResume()
+             }
+
+             builder.setNegativeButton("NON") { dialog, _ ->
+                 dialog.dismiss()
+             }
+
+             val dialog = builder.create()
+             dialog.show()
+         }
+        bottomSheetDialog.show()
     }
 
     override fun onResume() {

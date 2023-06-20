@@ -6,7 +6,11 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 
-class BookAdapter(private var bookList: List<Book>) : RecyclerView.Adapter<BookAdapter.BookViewHolder>() {
+interface OnBookClickListener {
+    fun onBookClick(book: Book)
+}
+
+class BookAdapter(private var bookList: List<Book>, private val listener: MyBookActivity) : RecyclerView.Adapter<BookAdapter.BookViewHolder>() {
 
     class BookViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val bookTitleView: TextView = itemView.findViewById(R.id.id)
@@ -22,6 +26,10 @@ class BookAdapter(private var bookList: List<Book>) : RecyclerView.Adapter<BookA
         val currentBook = bookList[position]
         holder.bookTitleView.text = currentBook.name
         holder.bookIsbnView.text = currentBook.isbn
+
+        holder.itemView.setOnClickListener {
+            listener.onBookClick(currentBook)
+        }
     }
 
     fun updateBooks(newBooks: List<Book>) {
