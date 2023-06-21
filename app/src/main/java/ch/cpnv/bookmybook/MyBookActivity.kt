@@ -18,6 +18,8 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton
 class MyBookActivity : AppCompatActivity(), OnBookClickListener {
     private lateinit var bookAdapter: BookAdapter
     private lateinit var db: SQLiteDatabase
+    private var openedBottomSheetDialog: BottomSheetDialog? = null
+
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -59,46 +61,54 @@ class MyBookActivity : AppCompatActivity(), OnBookClickListener {
         recyclerView.adapter = bookAdapter
     }
 
-     override fun onBookClick(book: Book) {
-        // Here you can create and show a BottomSheetDialog with options
-        val bottomSheetDialog = BottomSheetDialog(this)
-         val sheetView = layoutInflater.inflate(R.layout.bottom_sheet_dialog, null)
-         bottomSheetDialog.setContentView(sheetView)
+    override fun onBookClick(book: Book) {
+        // If a BottomSheetDialog is already opened, return
+        if (openedBottomSheetDialog?.isShowing == true) return
 
-         sheetView.findViewById<Button>(R.id.create_reservation_button).setOnClickListener {
+        val bottomSheetDialog = BottomSheetDialog(this)
+        val sheetView = layoutInflater.inflate(R.layout.bottom_sheet_dialog, null)
+        bottomSheetDialog.setContentView(sheetView)
+
+        sheetView.findViewById<Button>(R.id.create_reservation_button).setOnClickListener {
             // Handle reservation creation
             val intent = Intent(this, NewBookReservationActivity::class.java)
             intent.putExtra("bookId", book.id) // Pass the clicked book's id to the new activity
             startActivity(intent)
             bottomSheetDialog.dismiss()
+            openedBottomSheetDialog = null
         }
-         sheetView.findViewById<Button>(R.id.delete_button).setOnClickListener {
-             bottomSheetDialog.dismiss()
 
-             // Show confirmation dialog here
-             val builder = AlertDialog.Builder(this)
+        sheetView.findViewById<Button>(R.id.delete_button).setOnClickListener {
+            bottomSheetDialog.dismiss()
+            openedBottomSheetDialog = null
 
-             builder.setTitle("Confirmation")
-             builder.setMessage("Êtes-vous sûr de vouloir supprimer ce livre ?")
+            // Show confirmation dialog here
+            val builder = AlertDialog.Builder(this)
 
-             builder.setPositiveButton("OUI") { dialog, _ ->
-                 dialog.dismiss()
+            builder.setTitle("Confirmation")
+            builder.setMessage("Êtes-vous sûr de vouloir supprimer ce livre ?")
 
-                 // Delete the book from the database
-                 val deleteQuery = "DELETE FROM ${BookContract.BookEntry.TABLE_NAME} WHERE ${BaseColumns._ID} = ${book.id}"
-                 db.execSQL(deleteQuery)
-                 onResume()
-             }
+            builder.setPositiveButton("OUI") { dialog, _ ->
+                dialog.dismiss()
 
-             builder.setNegativeButton("NON") { dialog, _ ->
-                 dialog.dismiss()
-             }
+                // Delete the book from the database
+                val deleteQuery = "DELETE FROM ${BookContract.BookEntry.TABLE_NAME} WHERE ${BaseColumns._ID} = ${book.id}"
+                db.execSQL(deleteQuery)
+                onResume()
+            }
 
-             val dialog = builder.create()
-             dialog.show()
-         }
+            builder.setNegativeButton("NON") { dialog, _ ->
+                dialog.dismiss()
+            }
+
+            val dialog = builder.create()
+            dialog.show()
+        }
+
         bottomSheetDialog.show()
+        openedBottomSheetDialog = bottomSheetDialog
     }
+
 
     override fun onResume() {
         super.onResume()

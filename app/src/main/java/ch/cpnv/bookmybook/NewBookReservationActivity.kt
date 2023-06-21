@@ -20,8 +20,12 @@ import android.widget.Toast
 class NewBookReservationActivity : AppCompatActivity() {
     private lateinit var contactNameInput: AutoCompleteTextView
     private lateinit var bookNameInput: AutoCompleteTextView
-    private var selectedBookId: Int? = null
+    private var selectedBookId: Long? = null
     private lateinit var dbHelper: BookDbHelper
+
+    // Declaring bookTitles and bookIds as class properties
+    private val bookTitles = mutableListOf<String>()
+    private val bookIds = mutableListOf<Long>()
 
     private val getContent = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
         if (result.resultCode == Activity.RESULT_OK) {
@@ -48,6 +52,14 @@ class NewBookReservationActivity : AppCompatActivity() {
         initViews()
         setupClickListeners()
         setupBookAutocomplete()
+
+        // Check if we got a preselected book name from the intent extras and select it
+        val preselectedBookId = intent.getLongExtra("bookId", -1L)
+
+        if (bookIds.contains(preselectedBookId)) {
+            selectedBookId = preselectedBookId
+            bookNameInput.setText(bookTitles[bookIds.indexOf(selectedBookId)])
+        }
     }
 
     private fun initViews() {
@@ -90,10 +102,12 @@ class NewBookReservationActivity : AppCompatActivity() {
         val projection = arrayOf(BookContract.BookEntry.COLUMN_NAME_ID, BookContract.BookEntry.COLUMN_NAME_NAME)
         val cursor = db.query(BookContract.BookEntry.TABLE_NAME, projection, null, null, null, null, null)
 
-        val bookTitles = mutableListOf<String>()
-        val bookIds = mutableListOf<Int>()
+        // Clear the lists before filling them with new data
+        bookTitles.clear()
+        bookIds.clear()
+
         while(cursor.moveToNext()) {
-            val bookId = cursor.getInt(cursor.getColumnIndexOrThrow(BookContract.BookEntry.COLUMN_NAME_ID))
+            val bookId = cursor.getLong(cursor.getColumnIndexOrThrow(BookContract.BookEntry.COLUMN_NAME_ID))
             val bookTitle = cursor.getString(cursor.getColumnIndexOrThrow(BookContract.BookEntry.COLUMN_NAME_NAME))
 
             bookTitles.add(bookTitle)
@@ -119,7 +133,22 @@ class NewBookReservationActivity : AppCompatActivity() {
             return
         }
 
-        if (bookId == null) {
+
+
+        // Check if the book exists in the database
+        val cursor = db.query(BookContract.BookEntry.TABLE_NAME,
+            arrayOf(BookContract.BookEntry.COLUMN_NAME_ID),
+            "${BookContract.BookEntry.COLUMN_NAME_ID} = ?",
+            arrayOf(bookId.toString()),
+            null, null, null)
+        if (!cursor.moveToNext()) {
+            Toast.makeText(this, "Le livre sélectionné n'existe pas", Toast.LENGTH_SHORT).show()
+            return
+        }
+        cursor.close()
+
+
+        if (bookId == null || bookId == -1L) {
             Toast.makeText(this, "Veuillez sélectionner un livre", Toast.LENGTH_SHORT).show()
             return
         }
@@ -131,7 +160,7 @@ class NewBookReservationActivity : AppCompatActivity() {
 
         val values = ContentValues().apply {
             put(ReservationContract.BookEntry.COLUMN_NAME_CONTACT, contactName)
-            put(ReservationContract.BookEntry.COLUMN_NAME_BOOK, bookId) // save book id instead of book name
+            put(ReservationContract.BookEntry.COLUMN_NAME_BOOK, bookId)
             put(ReservationContract.BookEntry.COLUMN_NAME_START_DATE, startDate)
         }
 
@@ -143,6 +172,7 @@ class NewBookReservationActivity : AppCompatActivity() {
             Toast.makeText(this, "Erreur lors de la création de la réservation", Toast.LENGTH_SHORT).show()
         }
     }
+
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {

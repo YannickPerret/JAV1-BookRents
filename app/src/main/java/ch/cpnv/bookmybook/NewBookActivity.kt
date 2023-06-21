@@ -8,9 +8,9 @@ import android.os.Bundle
 import android.view.MenuItem
 import android.widget.Button
 import android.widget.EditText
+import android.widget.Toast
 
 class NewBookActivity : AppCompatActivity() {
-    @SuppressLint("WrongViewCast")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_new_book)
@@ -27,14 +27,18 @@ class NewBookActivity : AppCompatActivity() {
             val bookName = bookNameInput.text.toString()
             val bookIsbn = bookIsbnInput.text.toString()
 
-            val values = ContentValues().apply {
-                put("name", bookName)
-                put("isbn", bookIsbn)
-            }
+            if(bookName.isEmpty() || bookIsbn.isEmpty()){
+                Toast.makeText(this, "Veuillez remplir tous les champs", Toast.LENGTH_SHORT).show()
+            } else {
+                val values = ContentValues().apply {
+                    put("name", bookName)
+                    put("isbn", bookIsbn)
+                }
 
-            val newRowId = db.insert("book", null, values)
-            if (newRowId != -1L) {
-                finish()
+                val newRowId = db.insert("book", null, values)
+                if (newRowId != -1L) {
+                    finish()
+                }
             }
         }
     }
