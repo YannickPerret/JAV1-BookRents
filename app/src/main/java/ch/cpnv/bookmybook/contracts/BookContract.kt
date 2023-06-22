@@ -1,4 +1,4 @@
-package ch.cpnv.bookmybook
+package ch.cpnv.bookmybook.contracts
 
 import android.provider.BaseColumns
 

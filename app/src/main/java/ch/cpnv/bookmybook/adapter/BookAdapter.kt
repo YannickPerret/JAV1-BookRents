@@ -1,10 +1,13 @@
-package ch.cpnv.bookmybook
+package ch.cpnv.bookmybook.adapter
 
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
+import ch.cpnv.bookmybook.classes.Book
+import ch.cpnv.bookmybook.MyBookActivity
+import ch.cpnv.bookmybook.R
 
 interface OnBookClickListener {
     fun onBookClick(book: Book)

@@ -31,7 +31,7 @@
             android:name=".MyBookActivity"
             android:exported="false" />
         <activity
-            android:name=".MyRecyclerAdapter"
+            android:name=".adapter.MyRecyclerAdapter"
             android:exported="false" />
         <activity
             android:name=".NewBookReservationActivity"

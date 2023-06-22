@@ -1,7 +1,7 @@
 package ch.cpnv.bookmybook
 
-import BookDbHelper
-import ReservationContract
+import ch.cpnv.bookmybook.Helpers.DatabaseHelper
+import ch.cpnv.bookmybook.contracts.RentContract
 import android.content.ContentValues
 import android.content.Intent
 import android.database.sqlite.SQLiteDatabase
@@ -16,27 +16,30 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import ch.cpnv.bookmybook.adapter.MyRecyclerAdapter
+import ch.cpnv.bookmybook.classes.Book
+import ch.cpnv.bookmybook.contracts.BookContract
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import java.util.Date
 import java.util.Locale
 
 class MainActivity : AppCompatActivity() {
-    private lateinit var dbHelper: BookDbHelper
+    private lateinit var dbHelper: DatabaseHelper
     private lateinit var db: SQLiteDatabase
     private lateinit var recyclerView: RecyclerView
-    private lateinit var items: MutableList<BookItemReservation>
-
+    private lateinit var items: MutableList<Rent>
+    private lateinit var adapter: MyRecyclerAdapter
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        dbHelper = BookDbHelper(this)
+        dbHelper = DatabaseHelper(this)
         db = dbHelper.readableDatabase
 
         recyclerView = findViewById(R.id.my_recycler_view)
-        items = mutableListOf<BookItemReservation>()
+        items = mutableListOf()
 
         val itemTouchHelperCallback = object : ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT) {
             override fun onMove(recyclerView: RecyclerView, viewHolder: RecyclerView.ViewHolder, target: RecyclerView.ViewHolder): Boolean {
@@ -45,18 +48,24 @@ class MainActivity : AppCompatActivity() {
 
             override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
                 val position = viewHolder.adapterPosition
-                val bookItem = items[position]
+                val rentItem = items[position]
 
-                // Mettez à jour la base de données avec la date de retour actuelle
-                val currentDate = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault()).format(Date())
+                val currentDate = SimpleDateFormat("yyyy/MM/dd", Locale.getDefault()).format(Date())
                 val values = ContentValues().apply {
-                    put(ReservationContract.BookEntry.COLUMN_NAME_RETURN_DATE, currentDate)
+                    put(RentContract.BookEntry.COLUMN_NAME_RETURN_DATE, currentDate)
                 }
-                val selection = "${BaseColumns._ID} = ?"
-                val selectionArgs = arrayOf(bookItem.id.toString())
-                db.update(ReservationContract.BookEntry.TABLE_NAME, values, selection, selectionArgs)
 
-                // Recharger les données de la RecyclerView
+                val selection = RentContract.BookEntry.COLUMN_NAME_ID + " = ?"
+                val selectionArgs = arrayOf(rentItem.id.toString())
+
+                val rowsAffected = db.update(RentContract.BookEntry.TABLE_NAME, values, selection, selectionArgs)
+                if (rowsAffected > 0) {
+                    println("La mise à jour a réussi")
+                } else {
+                    println("La mise à jour a échoué")
+                }
+
+                adapter.notifyDataSetChanged()
                 onResume()
             }
 
@@ -106,46 +115,14 @@ class MainActivity : AppCompatActivity() {
     }
     override fun onResume() {
         super.onResume()
-
-        // Vide la liste d'éléments et la recharge avec les nouvelles données de la base de données.
         items.clear()
-
-        val query = """
-    SELECT ${ReservationContract.BookEntry.TABLE_NAME}.${BaseColumns._ID}, 
-    ${ReservationContract.BookEntry.COLUMN_NAME_CONTACT}, 
-    ${ReservationContract.BookEntry.COLUMN_NAME_START_DATE}, 
-    ${ReservationContract.BookEntry.COLUMN_NAME_RETURN_DATE}, 
-    Book.${BookContract.BookEntry.COLUMN_NAME_ID},
-    Book.${BookContract.BookEntry.COLUMN_NAME_NAME}
-    FROM ${ReservationContract.BookEntry.TABLE_NAME}
-    INNER JOIN Book ON ${ReservationContract.BookEntry.TABLE_NAME}.${ReservationContract.BookEntry.COLUMN_NAME_BOOK} = Book.${BookContract.BookEntry.COLUMN_NAME_ID}
-"""
-
-
-
-        val cursor = db.rawQuery(query, null)
-
-        with(cursor) {
-            while (moveToNext()) {
-                val id = getLong(getColumnIndexOrThrow(BaseColumns._ID)).toInt()
-                val contact = getString(getColumnIndexOrThrow(ReservationContract.BookEntry.COLUMN_NAME_CONTACT))
-                val bookId = getLong(getColumnIndexOrThrow(BookContract.BookEntry.COLUMN_NAME_ID))
-                val bookName = getString(getColumnIndexOrThrow(BookContract.BookEntry.COLUMN_NAME_NAME))
-                val startDate = getString(getColumnIndexOrThrow(ReservationContract.BookEntry.COLUMN_NAME_START_DATE))
-                val returnDate = getString(getColumnIndexOrThrow(ReservationContract.BookEntry.COLUMN_NAME_RETURN_DATE))
-
-                val item = BookItemReservation(id, contact, bookId, bookName, startDate, returnDate)
-                items.add(item)
-            }
-        }
-
-
+        items.addAll(Rent.getAllRentItems(db))
 
         recyclerView.layoutManager = LinearLayoutManager(this)
-        val adapter = MyRecyclerAdapter(items)
+        adapter = MyRecyclerAdapter(items)
         recyclerView.adapter = adapter
-
     }
+
 
     override fun onDestroy() {
         super.onDestroy()

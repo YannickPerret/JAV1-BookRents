@@ -1,6 +1,6 @@
 package ch.cpnv.bookmybook
 
-import BookDbHelper
+import ch.cpnv.bookmybook.Helpers.DatabaseHelper
 import android.app.Activity
 import android.app.DatePickerDialog
 import android.content.ContentValues
@@ -16,12 +16,14 @@ import android.widget.EditText
 import androidx.activity.result.contract.ActivityResultContracts
 import android.widget.ArrayAdapter
 import android.widget.Toast
+import ch.cpnv.bookmybook.contracts.BookContract
+import ch.cpnv.bookmybook.contracts.RentContract
 
 class NewBookReservationActivity : AppCompatActivity() {
     private lateinit var contactNameInput: AutoCompleteTextView
     private lateinit var bookNameInput: AutoCompleteTextView
     private var selectedBookId: Long? = null
-    private lateinit var dbHelper: BookDbHelper
+    private lateinit var dbHelper: DatabaseHelper
 
     // Declaring bookTitles and bookIds as class properties
     private val bookTitles = mutableListOf<String>()
@@ -47,7 +49,7 @@ class NewBookReservationActivity : AppCompatActivity() {
         setContentView(R.layout.activity_new_book_reservation)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
-        dbHelper = BookDbHelper(this)
+        dbHelper = DatabaseHelper(this)
 
         initViews()
         setupClickListeners()
@@ -132,11 +134,9 @@ class NewBookReservationActivity : AppCompatActivity() {
             Toast.makeText(this, "Veuillez sélectionner un contact", Toast.LENGTH_SHORT).show()
             return
         }
-
-
-
         // Check if the book exists in the database
-        val cursor = db.query(BookContract.BookEntry.TABLE_NAME,
+        val cursor = db.query(
+            BookContract.BookEntry.TABLE_NAME,
             arrayOf(BookContract.BookEntry.COLUMN_NAME_ID),
             "${BookContract.BookEntry.COLUMN_NAME_ID} = ?",
             arrayOf(bookId.toString()),
@@ -146,8 +146,6 @@ class NewBookReservationActivity : AppCompatActivity() {
             return
         }
         cursor.close()
-
-
         if (bookId == null || bookId == -1L) {
             Toast.makeText(this, "Veuillez sélectionner un livre", Toast.LENGTH_SHORT).show()
             return
@@ -159,12 +157,12 @@ class NewBookReservationActivity : AppCompatActivity() {
         }
 
         val values = ContentValues().apply {
-            put(ReservationContract.BookEntry.COLUMN_NAME_CONTACT, contactName)
-            put(ReservationContract.BookEntry.COLUMN_NAME_BOOK, bookId)
-            put(ReservationContract.BookEntry.COLUMN_NAME_START_DATE, startDate)
+            put(RentContract.BookEntry.COLUMN_NAME_CONTACT, contactName)
+            put(RentContract.BookEntry.COLUMN_NAME_BOOK, bookId)
+            put(RentContract.BookEntry.COLUMN_NAME_START_DATE, startDate)
         }
 
-        val newRowId = db?.insert(ReservationContract.BookEntry.TABLE_NAME, null, values)
+        val newRowId = db?.insert(RentContract.BookEntry.TABLE_NAME, null, values)
         if (newRowId != -1L) {
             Toast.makeText(this, "Réservation créée avec succès", Toast.LENGTH_SHORT).show()
             finish()

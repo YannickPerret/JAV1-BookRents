@@ -1,6 +1,6 @@
 package ch.cpnv.bookmybook
 
-import BookDbHelper
+import ch.cpnv.bookmybook.Helpers.DatabaseHelper
 import android.app.AlertDialog
 import android.content.Intent
 import android.database.Cursor
@@ -11,6 +11,10 @@ import android.widget.Button
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import ch.cpnv.bookmybook.adapter.BookAdapter
+import ch.cpnv.bookmybook.adapter.OnBookClickListener
+import ch.cpnv.bookmybook.classes.Book
+import ch.cpnv.bookmybook.contracts.BookContract
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.floatingactionbutton.FloatingActionButton
@@ -26,8 +30,8 @@ class MyBookActivity : AppCompatActivity(), OnBookClickListener {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_my_book)
 
-        val bookDbHelper = BookDbHelper(this)
-        db = bookDbHelper.writableDatabase
+        val databaseHelper = DatabaseHelper(this)
+        db = databaseHelper.writableDatabase
 
 
         val recyclerView: RecyclerView = findViewById(R.id.recycler_view)
@@ -118,8 +122,8 @@ class MyBookActivity : AppCompatActivity(), OnBookClickListener {
 
 
     private fun queryBooksFromDatabase(): List<Book> {
-        val bookDbHelper = BookDbHelper(this)
-        val db = bookDbHelper.readableDatabase
+        val databaseHelper = DatabaseHelper(this)
+        val db = databaseHelper.readableDatabase
 
         val projection = arrayOf("_id", "name", "isbn")
         val cursor: Cursor = db.query("book", projection, null, null, null, null, null)

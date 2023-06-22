@@ -1,7 +1,6 @@
 package ch.cpnv.bookmybook
 
-import BookDbHelper
-import android.annotation.SuppressLint
+import ch.cpnv.bookmybook.Helpers.DatabaseHelper
 import android.content.ContentValues
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
@@ -16,7 +15,7 @@ class NewBookActivity : AppCompatActivity() {
         setContentView(R.layout.activity_new_book)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
-        val dbHelper = BookDbHelper(this)
+        val dbHelper = DatabaseHelper(this)
         val db = dbHelper.writableDatabase
 
         val bookNameInput = findViewById<EditText>(R.id.book_name)
@@ -27,11 +26,11 @@ class NewBookActivity : AppCompatActivity() {
             val bookName = bookNameInput.text.toString()
             val bookIsbn = bookIsbnInput.text.toString()
 
-            if(bookName.isEmpty() || bookIsbn.isEmpty()){
+            if(bookName.isBlank() || bookIsbn.isEmpty()){
                 Toast.makeText(this, "Veuillez remplir tous les champs", Toast.LENGTH_SHORT).show()
             } else {
                 val values = ContentValues().apply {
-                    put("name", bookName)
+                    put("name", bookName.trim()) // use trim() to remove leading and trailing spaces
                     put("isbn", bookIsbn)
                 }
 

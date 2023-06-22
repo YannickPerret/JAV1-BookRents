@@ -1,6 +1,8 @@
+package ch.cpnv.bookmybook.contracts
+
 import android.provider.BaseColumns
 
-object ReservationContract {
+object RentContract {
     object BookEntry : BaseColumns {
         const val TABLE_NAME = "reservation"
         const val COLUMN_NAME_ID = "_id"

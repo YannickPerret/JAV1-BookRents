@@ -1,11 +1,10 @@
-import android.annotation.SuppressLint
+package ch.cpnv.bookmybook.Helpers
+
 import android.content.Context
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
-import ch.cpnv.bookmybook.Book
-import ch.cpnv.bookmybook.BookContract
 
-class BookDbHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, null, DATABASE_VERSION) {
+class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, null, DATABASE_VERSION) {
 
     companion object {
         private const val DATABASE_NAME = "bookMyBook.db"
@@ -28,21 +27,6 @@ class BookDbHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, 
 
         db.execSQL(SQL_CREATE_BOOK_TABLE)
         db.execSQL(SQL_CREATE_RESERVATION_TABLE)
-    }
-
-    @SuppressLint("Range")
-    fun getBookById(bookId: Long): Book? {
-        val db = this.readableDatabase
-        val cursor = db.query(BookContract.BookEntry.TABLE_NAME, null, "${BookContract.BookEntry.COLUMN_NAME_ID}=?", arrayOf(bookId.toString()), null, null, null)
-        var book: Book? = null
-        if (cursor.moveToFirst()) {
-            val id = cursor.getLong(cursor.getColumnIndex(BookContract.BookEntry.COLUMN_NAME_ID))
-            val name = cursor.getString(cursor.getColumnIndex(BookContract.BookEntry.COLUMN_NAME_NAME))
-            val isbn = cursor.getString(cursor.getColumnIndex(BookContract.BookEntry.COLUMN_NAME_ISBN))
-            book = Book(id, name, isbn)
-        }
-        cursor.close()
-        return book
     }
 
 

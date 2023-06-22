@@ -1,3 +1,3 @@
-package ch.cpnv.bookmybook
+package ch.cpnv.bookmybook.classes
 
 data class Book(val id: Long, val name: String, val isbn: String)
