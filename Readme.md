@@ -36,9 +36,7 @@ Je prévois d'ajouter les fonctionnalités suivantes à l'avenir :
 
 - **Ajouter une barre de recherche de livres** : Je prévois d'ajouter une fonctionnalité de recherche pour vous aider à trouver rapidement un livre dans votre liste.
 
-- **Voir les réservations
-
- associées à un livre** : Je prévois de vous permettre de consulter toutes les réservations associées à un livre spécifique.
+- **Voir les réservations associées à un livre** : Je prévois de vous permettre de consulter toutes les réservations associées à un livre spécifique.
 
 ---
 
