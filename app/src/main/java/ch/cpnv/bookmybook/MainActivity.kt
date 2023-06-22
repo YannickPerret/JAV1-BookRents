@@ -35,7 +35,7 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        dbHelper = DatabaseHelper(this)
+        dbHelper = DatabaseHelper.getInstance(this)
         db = dbHelper.readableDatabase
 
         recyclerView = findViewById(R.id.my_recycler_view)

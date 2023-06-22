@@ -30,7 +30,7 @@ class MyBookActivity : AppCompatActivity(), OnBookClickListener {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_my_book)
 
-        val databaseHelper = DatabaseHelper(this)
+        val databaseHelper = DatabaseHelper.getInstance(this)
         db = databaseHelper.writableDatabase
 
 
@@ -122,7 +122,7 @@ class MyBookActivity : AppCompatActivity(), OnBookClickListener {
 
 
     private fun queryBooksFromDatabase(): List<Book> {
-        val databaseHelper = DatabaseHelper(this)
+        val databaseHelper = DatabaseHelper.getInstance(this)
         val db = databaseHelper.readableDatabase
 
         val projection = arrayOf("_id", "name", "isbn")

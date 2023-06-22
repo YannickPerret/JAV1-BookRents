@@ -15,7 +15,7 @@ class NewBookActivity : AppCompatActivity() {
         setContentView(R.layout.activity_new_book)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
-        val dbHelper = DatabaseHelper(this)
+        val dbHelper = DatabaseHelper.getInstance(this)
         val db = dbHelper.writableDatabase
 
         val bookNameInput = findViewById<EditText>(R.id.book_name)

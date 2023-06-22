@@ -49,7 +49,7 @@ class NewBookReservationActivity : AppCompatActivity() {
         setContentView(R.layout.activity_new_book_reservation)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
-        dbHelper = DatabaseHelper(this)
+        dbHelper = DatabaseHelper.getInstance(this)
 
         initViews()
         setupClickListeners()
