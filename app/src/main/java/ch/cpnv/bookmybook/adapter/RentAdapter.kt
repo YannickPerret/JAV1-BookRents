@@ -9,10 +9,12 @@ import androidx.recyclerview.widget.RecyclerView
 import ch.cpnv.bookmybook.R
 import ch.cpnv.bookmybook.Rent
 import ch.cpnv.bookmybook.activities.MainActivity
+
 interface OnRentClickListener {
     fun onRentClick(rent: Rent)
 }
-class RentAdapter(private val items: List<Rent>, mainActivity: MainActivity,private val listener: OnRentClickListener) : RecyclerView.Adapter<RentAdapter.MyViewHolder>() {
+
+class RentAdapter(private var items: MutableList<Rent>, mainActivity: MainActivity, private val listener: OnRentClickListener) : RecyclerView.Adapter<RentAdapter.MyViewHolder>() {
 
     inner class MyViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         val contactName: TextView = view.findViewById(R.id.contactName)
@@ -48,4 +50,10 @@ class RentAdapter(private val items: List<Rent>, mainActivity: MainActivity,priv
     }
 
     override fun getItemCount() = items.size
+
+    fun updateData(newItems: MutableList<Rent>) {
+        items.clear()
+        items.addAll(newItems)
+        notifyDataSetChanged()
+    }
 }

@@ -8,7 +8,7 @@ class DatabaseHelper private constructor(context: Context) : SQLiteOpenHelper(co
 
     companion object {
         private const val DATABASE_NAME = "bookMyBook.db"
-        private const val DATABASE_VERSION = 4 // Incremented version to trigger onUpgrade()
+        private const val DATABASE_VERSION = 5
 
         @Volatile
         private var INSTANCE: DatabaseHelper? = null
@@ -33,7 +33,7 @@ class DatabaseHelper private constructor(context: Context) : SQLiteOpenHelper(co
                 "name TEXT, " +
                 "isbn TEXT);"
 
-        val SQL_CREATE_RESERVATION_TABLE = "CREATE TABLE IF NOT EXISTS reservation (" +
+        val SQL_CREATE_RENT_TABLE = "CREATE TABLE IF NOT EXISTS rent (" +
                 "_id INTEGER PRIMARY KEY AUTOINCREMENT, " +
                 "contact TEXT, " +
                 "book LONG, " +
@@ -42,11 +42,11 @@ class DatabaseHelper private constructor(context: Context) : SQLiteOpenHelper(co
                 "FOREIGN KEY(book) REFERENCES book(_id));"
 
         db.execSQL(SQL_CREATE_BOOK_TABLE)
-        db.execSQL(SQL_CREATE_RESERVATION_TABLE)
+        db.execSQL(SQL_CREATE_RENT_TABLE)
     }
 
     override fun onUpgrade(db: SQLiteDatabase, oldVersion: Int, newVersion: Int) {
-        db.execSQL("DROP TABLE IF EXISTS reservation")
+        db.execSQL("DROP TABLE IF EXISTS rent")
         db.execSQL("DROP TABLE IF EXISTS book")
 
         onCreate(db)

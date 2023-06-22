@@ -43,9 +43,6 @@ class Rent(val id: Int, val contact: String, val book: Book, val startDate: Stri
                     items.add(rentItem)
                 }
             }
-            for (item in items) {
-                println("Rent ID: ${item.id}")
-            }
             return items
         }
     }
