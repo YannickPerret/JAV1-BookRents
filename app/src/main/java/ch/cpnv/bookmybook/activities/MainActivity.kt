@@ -35,15 +35,10 @@ class MainActivity : AppCompatActivity(), OnRentClickListener {
     private lateinit var items: MutableList<Rent>
     private lateinit var adapter: RentAdapter
     private var openedBottomSheetDialog: BottomSheetDialog? = null
-    private lateinit var bottomNavigationView: BottomNavigationView
-
-
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-
-        bottomNavigationView = findViewById(R.id.bottom_navigation)
 
         dbHelper = DatabaseHelper.getInstance(this)
         db = dbHelper.readableDatabase
@@ -129,7 +124,7 @@ class MainActivity : AppCompatActivity(), OnRentClickListener {
         if (openedBottomSheetDialog?.isShowing == true) return
 
         val bottomSheetDialog = BottomSheetDialog(this)
-        val sheetView = layoutInflater.inflate(R.layout.bottom_rent_dialog, bottomNavigationView, false)
+        val sheetView = layoutInflater.inflate(R.layout.bottom_rent_dialog, null)
         bottomSheetDialog.setContentView(sheetView)
 
         sheetView.findViewById<Button>(R.id.delete_button).setOnClickListener {
@@ -164,10 +159,11 @@ class MainActivity : AppCompatActivity(), OnRentClickListener {
         items.clear()
         items.addAll(Rent.getAllRentItems(db))
 
+        println(items)
+
         recyclerView.layoutManager = LinearLayoutManager(this)
         adapter = RentAdapter(items, this, this)
         recyclerView.adapter = adapter
-        adapter.updateData(items)
     }
     override fun onDestroy() {
         super.onDestroy()
