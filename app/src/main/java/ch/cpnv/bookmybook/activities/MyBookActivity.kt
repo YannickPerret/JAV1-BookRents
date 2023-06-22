@@ -1,4 +1,4 @@
-package ch.cpnv.bookmybook
+package ch.cpnv.bookmybook.activities
 
 import ch.cpnv.bookmybook.Helpers.DatabaseHelper
 import android.app.AlertDialog
@@ -11,6 +11,7 @@ import android.widget.Button
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import ch.cpnv.bookmybook.R
 import ch.cpnv.bookmybook.adapter.BookAdapter
 import ch.cpnv.bookmybook.adapter.OnBookClickListener
 import ch.cpnv.bookmybook.classes.Book
@@ -23,8 +24,6 @@ class MyBookActivity : AppCompatActivity(), OnBookClickListener {
     private lateinit var bookAdapter: BookAdapter
     private lateinit var db: SQLiteDatabase
     private var openedBottomSheetDialog: BottomSheetDialog? = null
-
-
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -121,7 +120,7 @@ class MyBookActivity : AppCompatActivity(), OnBookClickListener {
     }
 
 
-    private fun queryBooksFromDatabase(): List<Book> {
+    private fun queryBooksFromDatabase(): MutableList<Book> {
         val databaseHelper = DatabaseHelper.getInstance(this)
         val db = databaseHelper.readableDatabase
 

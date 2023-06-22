@@ -1,4 +1,4 @@
-package ch.cpnv.bookmybook
+package ch.cpnv.bookmybook.activities
 
 import ch.cpnv.bookmybook.Helpers.DatabaseHelper
 import android.content.ContentValues
@@ -8,6 +8,7 @@ import android.view.MenuItem
 import android.widget.Button
 import android.widget.EditText
 import android.widget.Toast
+import ch.cpnv.bookmybook.R
 
 class NewBookActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -30,7 +31,7 @@ class NewBookActivity : AppCompatActivity() {
                 Toast.makeText(this, "Veuillez remplir tous les champs", Toast.LENGTH_SHORT).show()
             } else {
                 val values = ContentValues().apply {
-                    put("name", bookName.trim()) // use trim() to remove leading and trailing spaces
+                    put("name", bookName.trim())
                     put("isbn", bookIsbn)
                 }
 
@@ -41,8 +42,6 @@ class NewBookActivity : AppCompatActivity() {
             }
         }
     }
-
-
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
             android.R.id.home -> {

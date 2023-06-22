@@ -1,5 +1,6 @@
-package ch.cpnv.bookmybook
+package ch.cpnv.bookmybook.activities
 
+import android.app.AlertDialog
 import ch.cpnv.bookmybook.Helpers.DatabaseHelper
 import ch.cpnv.bookmybook.contracts.RentContract
 import android.content.ContentValues
@@ -12,24 +13,28 @@ import android.graphics.RectF
 import android.icu.text.SimpleDateFormat
 import android.os.Bundle
 import android.provider.BaseColumns
+import android.widget.Button
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import ch.cpnv.bookmybook.adapter.MyRecyclerAdapter
-import ch.cpnv.bookmybook.classes.Book
-import ch.cpnv.bookmybook.contracts.BookContract
+import ch.cpnv.bookmybook.R
+import ch.cpnv.bookmybook.Rent
+import ch.cpnv.bookmybook.adapter.OnRentClickListener
+import ch.cpnv.bookmybook.adapter.RentAdapter
 import com.google.android.material.bottomnavigation.BottomNavigationView
+import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import java.util.Date
 import java.util.Locale
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : AppCompatActivity(), OnRentClickListener {
     private lateinit var dbHelper: DatabaseHelper
     private lateinit var db: SQLiteDatabase
     private lateinit var recyclerView: RecyclerView
     private lateinit var items: MutableList<Rent>
-    private lateinit var adapter: MyRecyclerAdapter
+    private lateinit var adapter: RentAdapter
+    private var openedBottomSheetDialog: BottomSheetDialog? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -113,17 +118,51 @@ class MainActivity : AppCompatActivity() {
             }
         }
     }
+
+    override fun onRentClick(rent: Rent) {
+        // Si un BottomSheetDialog est déjà ouvert, retour
+        if (openedBottomSheetDialog?.isShowing == true) return
+
+        val bottomSheetDialog = BottomSheetDialog(this)
+        val sheetView = layoutInflater.inflate(R.layout.bottom_rent_dialog, null)
+        bottomSheetDialog.setContentView(sheetView)
+
+        sheetView.findViewById<Button>(R.id.delete_button).setOnClickListener {
+            bottomSheetDialog.dismiss()
+            openedBottomSheetDialog = null
+
+            val builder = AlertDialog.Builder(this)
+
+            builder.setTitle("Confirmation")
+            builder.setMessage("Êtes-vous sûr de vouloir supprimer cette réservation ?")
+
+            builder.setPositiveButton("OUI") { dialog, _ ->
+                dialog.dismiss()
+                // Supprimer la réservation de la base de données
+                val deleteQuery = "DELETE FROM ${RentContract.BookEntry.TABLE_NAME} WHERE ${BaseColumns._ID} = ${rent.id}"
+                db.execSQL(deleteQuery)
+                onResume()
+            }
+            builder.setNegativeButton("NON") { dialog, _ ->
+                dialog.dismiss()
+            }
+            val dialog = builder.create()
+            dialog.show()
+        }
+
+        bottomSheetDialog.show()
+        openedBottomSheetDialog = bottomSheetDialog
+    }
+
     override fun onResume() {
         super.onResume()
         items.clear()
         items.addAll(Rent.getAllRentItems(db))
 
         recyclerView.layoutManager = LinearLayoutManager(this)
-        adapter = MyRecyclerAdapter(items)
+        adapter = RentAdapter(items, this, this)
         recyclerView.adapter = adapter
     }
-
-
     override fun onDestroy() {
         super.onDestroy()
         db.close()

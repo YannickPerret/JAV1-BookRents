@@ -8,8 +8,11 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import ch.cpnv.bookmybook.R
 import ch.cpnv.bookmybook.Rent
-
-class MyRecyclerAdapter(private val items: List<Rent>) : RecyclerView.Adapter<MyRecyclerAdapter.MyViewHolder>() {
+import ch.cpnv.bookmybook.activities.MainActivity
+interface OnRentClickListener {
+    fun onRentClick(rent: Rent)
+}
+class RentAdapter(private val items: List<Rent>, mainActivity: MainActivity,private val listener: OnRentClickListener) : RecyclerView.Adapter<RentAdapter.MyViewHolder>() {
 
     inner class MyViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         val contactName: TextView = view.findViewById(R.id.contactName)
@@ -20,7 +23,7 @@ class MyRecyclerAdapter(private val items: List<Rent>) : RecyclerView.Adapter<My
 
     override fun onCreateViewHolder(viewGroup: ViewGroup, viewType: Int): MyViewHolder {
         val view = LayoutInflater.from(viewGroup.context)
-            .inflate(R.layout.text_row_item, viewGroup, false)
+            .inflate(R.layout.row_item, viewGroup, false)
 
         return MyViewHolder(view)
     }
@@ -36,6 +39,11 @@ class MyRecyclerAdapter(private val items: List<Rent>) : RecyclerView.Adapter<My
             holder.itemView.setBackgroundColor(Color.GREEN)
         } else {
             holder.itemView.setBackgroundColor(Color.WHITE)
+        }
+
+        // Gestion du clic sur le Rent item
+        holder.itemView.setOnClickListener {
+            listener.onRentClick(rentItem)
         }
     }
 

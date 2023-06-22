@@ -1,4 +1,4 @@
-package ch.cpnv.bookmybook
+package ch.cpnv.bookmybook.activities
 
 import ch.cpnv.bookmybook.Helpers.DatabaseHelper
 import android.app.Activity
@@ -16,6 +16,7 @@ import android.widget.EditText
 import androidx.activity.result.contract.ActivityResultContracts
 import android.widget.ArrayAdapter
 import android.widget.Toast
+import ch.cpnv.bookmybook.R
 import ch.cpnv.bookmybook.contracts.BookContract
 import ch.cpnv.bookmybook.contracts.RentContract
 
@@ -76,7 +77,7 @@ class NewBookReservationActivity : AppCompatActivity() {
         }
 
         bookNameInput.setOnClickListener {
-            if (bookNameInput.length() >= 3){
+            if (bookNameInput.length() >= 2){
                 bookNameInput.showDropDown()
             }
         }
@@ -88,7 +89,7 @@ class NewBookReservationActivity : AppCompatActivity() {
             val day = calendar.get(Calendar.DAY_OF_MONTH)
 
             DatePickerDialog(this, { _, selectedYear, selectedMonth, selectedDay ->
-                startDate.setText("$selectedYear/${selectedMonth + 1}/$selectedDay")
+                startDate.setText("$selectedDay/${selectedMonth + 1}/$selectedYear")
             }, year, month, day).show()
         }
 

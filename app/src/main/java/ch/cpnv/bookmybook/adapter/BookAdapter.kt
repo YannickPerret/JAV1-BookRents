@@ -6,14 +6,15 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import ch.cpnv.bookmybook.classes.Book
-import ch.cpnv.bookmybook.MyBookActivity
+import ch.cpnv.bookmybook.activities.MyBookActivity
 import ch.cpnv.bookmybook.R
+import ch.cpnv.bookmybook.Rent
 
 interface OnBookClickListener {
     fun onBookClick(book: Book)
 }
 
-class BookAdapter(private var bookList: List<Book>, private val listener: MyBookActivity) : RecyclerView.Adapter<BookAdapter.BookViewHolder>() {
+class BookAdapter(private var bookList: MutableList<Book>, private val listener: MyBookActivity) : RecyclerView.Adapter<BookAdapter.BookViewHolder>() {
 
     class BookViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val bookTitleView: TextView = itemView.findViewById(R.id.id)
@@ -35,7 +36,7 @@ class BookAdapter(private var bookList: List<Book>, private val listener: MyBook
         }
     }
 
-    fun updateBooks(newBooks: List<Book>) {
+    fun updateBooks(newBooks: MutableList<Book>) {
         bookList = newBooks
         notifyDataSetChanged()
     }
